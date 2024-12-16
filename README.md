@@ -74,6 +74,8 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 2. **TM1637 Display**: Connect the CLK and DIO pins to pins 2 and 3 on the Arduino.
 3. **Relay**: Connect the relay control pin to pin 13 on the Arduino.
 
+![Connection schema](https://github.com/Jerry911/arduinoSafeController/blob/main/Pinout/Sketch.png)
+
 ## How to Use
 
 1. **Upload the Code**: Upload the code to your Arduino board using the Arduino IDE.
