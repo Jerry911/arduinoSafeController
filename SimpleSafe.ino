@@ -4,9 +4,10 @@
 // Define the connections pins
 const int buttonPins[] = {4, 5, 6, 7, 8, 9, 10, 11, 12}; // Pins connected to buttons
 const int numButtons = 9; // The amount of buttons
+const int debounceDelay = 50; // 50 ms debounce delay
 
 // Correct sequence
-const int correctCode[] = {0, 0, 0, 0}; // Correct code that should be entered
+const int correctCode[] = {0, 0, 0, 0};
 const int codeLength = sizeof(correctCode) / sizeof(correctCode[0]);
 int enteredCode[codeLength]; // Array to store entered code
 int enteredIndex = 0; // Tracks the number of digits entered
@@ -32,6 +33,13 @@ void setup() {
 
   display.setBrightness(7);  // Set the display brightness (0-7)
   display.clear(); // Clear the display
+
+  // Clear the enteredCode array
+  for (int i = 0; i < codeLength; i++) {
+    enteredCode[i] = 0;
+  }
+  
+  delay(1000); // Add a delay to allow all pins to stabilize
 };
 
 
@@ -39,20 +47,15 @@ void loop() {
   // Check for button presses
   for (int i = 0; i < numButtons; i++) {
     if (digitalRead(buttonPins[i]) == LOW) { // Button pressed
-      delay(500); // Debounce delay
-      while (digitalRead(buttonPins[i]) == LOW); // Wait for release
-
-      // Store the pressed button number
-      enteredCode[enteredIndex] = i;
-
-      // Increment entered index
-      enteredIndex++;
+      delay(debounceDelay); // Debounce delay
+      if (digitalRead(buttonPins[i]) == LOW) {
+        while (digitalRead(buttonPins[i]) == LOW); // Wait for release
+        enteredCode[enteredIndex] = i;
+        enteredIndex++;
+        //Print the entered code on the display
+        display.showNumberDec(enteredCode[enteredIndex - 1], true, 1, enteredIndex-1);
+      }
     }
-  }
-
-  //Print the entered code on the display
-  if (enteredIndex > 0) {
-    display.showNumberDec(enteredCode[enteredIndex - 1], true, 1, enteredIndex-1);
   }
 
   // Check if 4 digits have been entered
