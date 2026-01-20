@@ -31,6 +31,9 @@ void setup() {
     pinMode(buttonPins[i], INPUT_PULLUP); // Enable internal pull-up resistors
   }
 
+  pinMode(relayPin, OUTPUT);
+  digitalWrite(relayPin, LOW);
+
   display.setBrightness(7);  // Set the display brightness (0-7)
   display.clear(); // Clear the display
 
