@@ -76,6 +76,10 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 ![Connection schema](https://github.com/Jerry911/arduinoSafeController/blob/main/Pinout/Sketch.png)
 
+![Buttons example](https://raw.githubusercontent.com/Jerry911/arduinoSafeController/refs/heads/main/Pinout/IMG20260115154511.jpg)
+
+![Operation example](https://github.com/Jerry911/arduinoSafeController/blob/bf7f693cd85926087363f9f141bec9fbba1f759e/Pinout/example.gif)
+
 ## How to Use
 
 1. **Upload the Code**: Upload the code to your Arduino board using the Arduino IDE.
