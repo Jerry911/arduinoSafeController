@@ -96,6 +96,16 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 - **Buttons Not Responding**: Ensure that the buttons are wired correctly and that the internal pull-up resistors are enabled by using `INPUT_PULLUP`.
 - **Display Issues**: Verify that the CLK and DIO pins are correctly connected to the TM1637 display.
 - **Relay Not Triggering**: Ensure the relay is wired correctly to the relay control pin and that it is compatible with your external device.
+- **Compilation error: TM1637Display.h: No such file or directory**:
+This error means the TM1637 display library is not installed (or not found) in your Arduino environment.
+Fix: Install the TM1637Display library
+Method 1: Arduino Library Manager (recommended)
+Open Arduino IDE
+Go to Sketch → Include Library → Manage Libraries…
+In the search box, type TM1637
+Install “TM1637Display” by Avishay Orpaz
+Restart the Arduino IDE
+Compile again.
 
 ## License
 
