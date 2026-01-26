@@ -24,6 +24,7 @@ int relayTimeToKeepOn = 500; // Keep the relay on for 0.5 second
 TM1637Display display(CLK, DIO); // Create an instance of the TM1637Display
 
 // Additional Settings
+int displayBrightness = 7; // Set the display brightness (0-7)
 int timesToFlashOnWrongCode = 3; // When wrong code is entered, flash it on the display
 int delayOnFlash = 500; // Delay between clearing the display and showing the wrong code
 const int maxWrongAttempts = 3; // Allowed wrong attempts
@@ -43,7 +44,7 @@ void setup() {
   digitalWrite(mainLockRelayPin, LOW);
   digitalWrite(emergencyLockRelayPin, LOW);
 
-  display.setBrightness(7);  // Set the display brightness (0-7)
+  display.setBrightness(displayBrightness);
   display.clear(); // Clear the display
 
   // Clear the enteredCode array
@@ -62,10 +63,7 @@ void loop() {
 
     if (elapsed >= lockoutTime) {
       // Unlock
-      isLocked = false;
-      wrongAttempts = 0;
-      enteredIndex = 0;
-      display.clear();
+      unlockSystem();
     } else {
       // Show countdown
       display.showNumberDec(remaining, true);
@@ -148,6 +146,7 @@ void lockSystem(){
 void unlockSystem(){
   isLocked = false;
   wrongAttempts = 0;
+  enteredIndex = 0;
   display.clear();
 }
 
