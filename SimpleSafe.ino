@@ -2,7 +2,7 @@
 #include <TM1637Display.h>
 
 // Define the connections pins
-const int buttonPins[] = {4, 5, 6, 7, 8, 9, 10, 11, 12}; // Pins connected to buttons
+const int buttonPins[] = {4, 5, 6, 7, 8, 9, 10, 11, 12, 13}; // Pins connected to buttons
 const int numButtons = 9; // The amount of buttons
 const int debounceDelay = 50; // 50 ms debounce delay
 
