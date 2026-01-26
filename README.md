@@ -38,6 +38,10 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 - `emergencyLockRelayPin`: Pin connected to the emergency relay.
 - `timesToFlashOnWrongCode`: The number of times the wrong code will flash on the display if entered incorrectly.
 - `delayOnFlash`: The delay between flashing the wrong code.
+- `maxWrongAttempts`: The maximum wrong code can be entered after which the system locks.
+- `lockoutTime`: The duration in milliseconds for which the system locks and no longer accepts input.
+- `wrongAttempts`: Counter to keep track of the wrong attempts.
+- `isLocked`: Flag to know if the system is locked or not
 
 ### `setup()`
 
@@ -48,11 +52,13 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 ### `loop()`
 
-- Monitors the buttons for presses.
+- Checks if the system is locked and displays a countdown timer if so. When the timer reaches 0 the system is unlocked.
+- Monitors the buttons for presses (even when the system is locked).
 - When a button is pressed, it stores the corresponding digit and displays the entered digit.
 - Once 4 digits are entered, it checks if the entered code matches the main code or the emergency code.
-  - If the code matches, the corresponding relay is triggered.
-  - If the code does not match, the wrong code flashes on the display multiple times.
+  - If the code matches the main code the main relay is triggered (if the system is not locked).
+  - If the code matches the emergency code the emergency relay is triggered and the system is unlocked (even when the system is locked).
+  - If the code does not match (and the system is not locked), the wrong code flashes on the display multiple times and the wrong attempt counter is incremented.
 - After the check, the entered code is cleared, and the system is ready for the next attempt.
 
 ### `getEnteredCode()`
@@ -75,6 +81,15 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 - Compares the entered code with the predefined correct code and returns `true` if they match, otherwise `false`.
 
+### `lockSystem()`
+
+- Flags the system as locked and starts to show a countdown timer.
+- The emergency code can still be entered to unlock the system.
+
+### `unlockSystem()`
+
+- Flags the system as unlocked so input can be given again.
+
 ## Wiring Diagram
 
 1. **Buttons**: Connect each button to the respective pin (from 4 to 13) and ground.
@@ -96,13 +111,18 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 4. **Trigger Emergency Relay**: If you enter the correct 4-digit code (`1, 1, 1, 1` in this example), the emergency relay will be activated for 0.5 seconds.
 5. **Wrong Code**: If you enter an incorrect code, the display will flash the incorrect code several times.
 6. **Reset**: After a correct or incorrect entry, the system resets, and you can enter a new code.
+7. **Lock**: After X wrong attempts the system will lock up and display a countdown timer.
+8. **Unlock**: Wait for the countdown timer to finish or enter the emergency code.
 
 ## Customization
 
-- **Change the Correct Code**: Modify the `correctCode[]` array to set your desired 4-digit code.
+- **Change the Correct Code**: Modify the `mainCode[]` array to set your desired 4-digit code.
+- **Change the Emegerency Code**: Modify the `emergencyCode[]` array to set your desired 4-digit code.
 - **Adjust Relay Time**: You can change the time the relay stays on by modifying the `relayTimeToKeepOn` variable.
 - **Button Configuration**: You can modify the `buttonPins[]` array if you want to use different pins for the buttons.
-- **Display Settings**: Adjust the brightness of the TM1637 display using the `display.setBrightness()` function.
+- **Display Settings**: Adjust the brightness of the TM1637 display using the `displayBrightness` variable.
+- **Adjust Maximum Wrong Attempts**: Adjust the maximum wrong attempts before the system locks by changing the `maxWrongAttempts` variable.
+- **Adjust System Lock Time**: Adjust the time the system locks by changing the `lockoutTime` variable.
 
 ## Troubleshooting
 
