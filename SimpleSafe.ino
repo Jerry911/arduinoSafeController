@@ -7,13 +7,15 @@ const int numButtons = 9; // The amount of buttons
 const int debounceDelay = 50; // 50 ms debounce delay
 
 // Correct sequence
-const int correctCode[] = {0, 0, 0, 0};
-const int codeLength = sizeof(correctCode) / sizeof(correctCode[0]);
+const int mainCode[] = {0, 0, 0, 0};
+const int emergencyCode[] = {1, 1, 1, 1};
+const int codeLength = sizeof(mainCode) / sizeof(mainCode[0]);
 int enteredCode[codeLength]; // Array to store entered code
 int enteredIndex = 0; // Tracks the number of digits entered
 
 // Relay settings
-const int relayPin = 13;
+const int mainLockRelayPin = A0;
+const int emergencyLockRelayPin = A1;
 int relayTimeToKeepOn = 500; // Keep the relay on for 0.5 second
 
 // Display connection pins
@@ -31,8 +33,10 @@ void setup() {
     pinMode(buttonPins[i], INPUT_PULLUP); // Enable internal pull-up resistors
   }
 
-  pinMode(relayPin, OUTPUT);
-  digitalWrite(relayPin, LOW);
+  pinMode(mainLockRelayPin, OUTPUT);
+  pinMode(emergencyLockRelayPin, OUTPUT);
+  digitalWrite(mainLockRelayPin, LOW);
+  digitalWrite(emergencyLockRelayPin, LOW);
 
   display.setBrightness(7);  // Set the display brightness (0-7)
   display.clear(); // Clear the display
@@ -63,8 +67,12 @@ void loop() {
 
   // Check if 4 digits have been entered
   if (enteredIndex == codeLength) {
-    if (checkCode()) {
-      triggerRelay();
+    if (checkCode(mainCode)) {
+      triggerMainLockRelay();
+      delay(5000);
+    }
+    else if (checkCode(emergencyCode)) {
+      triggerEmergencyLockRelay();
       delay(5000);
     }else{
       flashDisplay();
@@ -100,16 +108,22 @@ void flashDisplay(){
   delay(500);
 }
 
-void triggerRelay(){
-  digitalWrite(relayPin, HIGH);
+void triggerMainLockRelay(){
+  digitalWrite(mainLockRelayPin, HIGH);
   delay(relayTimeToKeepOn); 
-  digitalWrite(relayPin, LOW);
+  digitalWrite(mainLockRelayPin, LOW);
+}
+
+void triggerEmergencyLockRelay(){
+  digitalWrite(emergencyLockRelayPin, HIGH);
+  delay(relayTimeToKeepOn); 
+  digitalWrite(emergencyLockRelayPin, LOW);
 }
   
 // Function to check if the entered code matches the correct code
-bool checkCode() {
+bool checkCode(const int *codeToCheck) {
   for (int i = 0; i < codeLength; i++) {
-    if (enteredCode[i] != correctCode[i]) {
+    if (enteredCode[i] != codeToCheck[i]) {
       return false; // Code doesn't match
     }
   }
