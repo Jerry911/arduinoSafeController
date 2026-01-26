@@ -23,23 +23,26 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 ## Pin Configuration
 
-- **Buttons**: The buttons are connected to pins 4 to 12. These are configured as `INPUT_PULLUP`, so ensure you use the internal pull-up resistors.
+- **Buttons**: The buttons are connected to pins 4 to 13. These are configured as `INPUT_PULLUP`, so ensure you use the internal pull-up resistors.
 - **TM1637 Display**: The display uses pins 2 (CLK) and 3 (DIO).
-- **Relay**: The relay is connected to pin 13.
+- **Relay**: The main relay is connected to pin A0 and the second emergency relay is connected to pin A1.
 
 ## Code Explanation
 
 ### Constants and Pin Definitions
 
 - `buttonPins[]`: Array defining the pins connected to the pushbuttons.
-- `correctCode[]`: The correct 4-digit code that must be entered to trigger the relay.
-- `relayPin`: Pin connected to the relay.
+- `mainCode[]`: The correct 4-digit code that must be entered to trigger the relay A0.
+- `emergencyCode[]`: The correct 4-digit code that must be entered to trigger the relay A1.
+- `mainLockRelayPin`: Pin connected to the main relay.
+- `emergencyLockRelayPin`: Pin connected to the emergency relay.
 - `timesToFlashOnWrongCode`: The number of times the wrong code will flash on the display if entered incorrectly.
 - `delayOnFlash`: The delay between flashing the wrong code.
 
 ### `setup()`
 
 - Sets up the button pins as inputs with internal pull-up resistors.
+- Sets up A0 and A1 as output pints for the relays and sets them to LOW (off)
 - Initializes the TM1637 display and sets its brightness.
 - Clears the display initially.
 
@@ -47,8 +50,8 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 - Monitors the buttons for presses.
 - When a button is pressed, it stores the corresponding digit and displays the entered digit.
-- Once 4 digits are entered, it checks if the entered code matches the correct code.
-  - If the code matches, the relay is triggered.
+- Once 4 digits are entered, it checks if the entered code matches the main code or the emergency code.
+  - If the code matches, the corresponding relay is triggered.
   - If the code does not match, the wrong code flashes on the display multiple times.
 - After the check, the entered code is cleared, and the system is ready for the next attempt.
 
@@ -60,19 +63,24 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 - Flashes the wrong code on the display multiple times to notify the user of an incorrect entry.
 
-### `triggerRelay()`
+### `triggerMainLockRelay()`
 
-- Activates the relay for 0.5 seconds, simulating the unlocking of a device.
+- Activates the main relay for 0.5 seconds, simulating the unlocking of a device.
 
-### `checkCode()`
+### `triggerEmergencyLockRelay()`
+
+- Activates the emergency relay for 0.5 seconds, simulating the unlocking of a device.
+
+### `checkCode(const int *codeToCheck)`
 
 - Compares the entered code with the predefined correct code and returns `true` if they match, otherwise `false`.
 
 ## Wiring Diagram
 
-1. **Buttons**: Connect each button to the respective pin (from 4 to 12) and ground.
+1. **Buttons**: Connect each button to the respective pin (from 4 to 13) and ground.
 2. **TM1637 Display**: Connect the CLK and DIO pins to pins 2 and 3 on the Arduino.
-3. **Relay**: Connect the relay control pin to pin 13 on the Arduino.
+3. **Main Relay**: Connect the main relay control pin to pin A0 on the Arduino.
+4. **Emergency Relay**: Connect the emergency relay control pin to pin A1 on the Arduino.
 
 ![Connection schema](https://github.com/Jerry911/arduinoSafeController/blob/main/Pinout/Sketch.png)
 
@@ -84,9 +92,10 @@ This Arduino sketch allows you to create a simple keypad lock system. The system
 
 1. **Upload the Code**: Upload the code to your Arduino board using the Arduino IDE.
 2. **Enter Code**: Press the buttons corresponding to the digits of the code. For example, pressing button 5 will enter the digit `5`.
-3. **Trigger Relay**: If you enter the correct 4-digit code (`0, 0, 0, 0` in this example), the relay will be activated for 0.5 seconds.
-4. **Wrong Code**: If you enter an incorrect code, the display will flash the incorrect code several times.
-5. **Reset**: After a correct or incorrect entry, the system resets, and you can enter a new code.
+3. **Trigger Main Relay**: If you enter the correct 4-digit code (`0, 0, 0, 0` in this example), the main relay will be activated for 0.5 seconds.
+4. **Trigger Emergency Relay**: If you enter the correct 4-digit code (`1, 1, 1, 1` in this example), the emergency relay will be activated for 0.5 seconds.
+5. **Wrong Code**: If you enter an incorrect code, the display will flash the incorrect code several times.
+6. **Reset**: After a correct or incorrect entry, the system resets, and you can enter a new code.
 
 ## Customization
 
