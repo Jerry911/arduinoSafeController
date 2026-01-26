@@ -11,7 +11,7 @@ const int mainCode[] = {0, 0, 0, 0};
 const int emergencyCode[] = {1, 1, 1, 1};
 const int codeLength = sizeof(mainCode) / sizeof(mainCode[0]);
 int enteredCode[codeLength]; // Array to store entered code
-int enteredIndex = 0; // Tracks the number of digits entered
+int enteredIndex = 0; // Tracks the number of digits, entered
 
 // Relay settings
 const int mainLockRelayPin = A0;
@@ -26,6 +26,11 @@ TM1637Display display(CLK, DIO); // Create an instance of the TM1637Display
 // Additional Settings
 int timesToFlashOnWrongCode = 3; // When wrong code is entered, flash it on the display
 int delayOnFlash = 500; // Delay between clearing the display and showing the wrong code
+const int maxWrongAttempts = 3; // Allowed wrong attempts
+const unsigned long lockoutTime = 60000; // Lock time in ms (1min)
+int wrongAttempts = 0; // Track wrong attempts
+bool isLocked = false; // Initial not locked out
+unsigned long lockoutStartTime = 0;
 
 void setup() {
   // Initialize button pins
@@ -51,31 +56,56 @@ void setup() {
 
 
 void loop() {
+  if (isLocked) {
+    unsigned long elapsed = millis() - lockoutStartTime;
+    unsigned long remaining = (lockoutTime - elapsed) / 1000;
+
+    if (elapsed >= lockoutTime) {
+      // Unlock
+      isLocked = false;
+      wrongAttempts = 0;
+      enteredIndex = 0;
+      display.clear();
+    } else {
+      // Show countdown
+      display.showNumberDec(remaining, true);
+    }
+  }
+
   // Check for button presses
   for (int i = 0; i < numButtons; i++) {
     if (digitalRead(buttonPins[i]) == LOW) { // Button pressed
       delay(debounceDelay); // Debounce delay
       if (digitalRead(buttonPins[i]) == LOW) {
         while (digitalRead(buttonPins[i]) == LOW); // Wait for release
-        enteredCode[enteredIndex] = i;
-        enteredIndex++;
-        //Print the entered code on the display
-        display.showNumberDec(enteredCode[enteredIndex - 1], true, 1, enteredIndex-1);
+        if (enteredIndex < codeLength) {
+          enteredCode[enteredIndex] = i;
+          enteredIndex++;
+          //Print the entered code on the display
+          if (!isLocked) {
+            display.showNumberDec(enteredCode[enteredIndex - 1], true, 1, enteredIndex-1);
+          }
+        }
       }
     }
   }
 
   // Check if 4 digits have been entered
   if (enteredIndex == codeLength) {
-    if (checkCode(mainCode)) {
+    if (!isLocked && checkCode(mainCode)) {
       triggerMainLockRelay();
       delay(5000);
     }
     else if (checkCode(emergencyCode)) {
       triggerEmergencyLockRelay();
+      unlockSystem();
       delay(5000);
-    }else{
+    }else if (!isLocked){
+      wrongAttempts++;
       flashDisplay();
+      if (wrongAttempts >= maxWrongAttempts) {
+        lockSystem();
+      }
     }
 
     // Reset for the next attempt
@@ -106,6 +136,19 @@ void flashDisplay(){
   }
 
   delay(500);
+}
+
+void lockSystem(){
+  isLocked = true;
+  lockoutStartTime = millis();
+  enteredIndex = 0;
+  display.clear();
+}
+
+void unlockSystem(){
+  isLocked = false;
+  wrongAttempts = 0;
+  display.clear();
 }
 
 void triggerMainLockRelay(){
